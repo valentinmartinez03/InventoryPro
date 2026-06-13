@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Box 1 (Bottom Left) -->
+    <path
+        android:fillColor="@color/primary_green"
+        android:pathData="M4,14l4,2l4,-2l-4,-2z" />
+    <path
+        android:fillColor="#1E8449"
+        android:pathData="M4,14l0,4l4,2l0,-4z" />
+    <path
+        android:fillColor="#2ECC71"
+        android:pathData="M8,16l0,4l4,-2l0,-4z" />
+
+    <!-- Box 2 (Bottom Right) -->
+    <path
+        android:fillColor="@color/primary_green"
+        android:pathData="M12,14l4,2l4,-2l-4,-2z" />
+    <path
+        android:fillColor="#1E8449"
+        android:pathData="M12,14l0,4l4,2l0,-4z" />
+    <path
+        android:fillColor="#2ECC71"
+        android:pathData="M16,16l0,4l4,-2l0,-4z" />
+
+    <!-- Box 3 (Top Middle) -->
+    <path
+        android:fillColor="@color/primary_green"
+        android:pathData="M8,8l4,2l4,-2l-4,-2z" />
+    <path
+        android:fillColor="#1E8449"
+        android:pathData="M8,8l0,4l4,2l0,-4z" />
+    <path
+        android:fillColor="#2ECC71"
+        android:pathData="M12,10l0,4l4,-2l0,-4z" />
+</vector>
