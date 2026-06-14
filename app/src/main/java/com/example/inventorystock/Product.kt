@@ -1,7 +1,11 @@
 package com.example.inventorystock
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "products")
 data class Product(
-    var id: String = "",
+    @PrimaryKey var id: String = "",
     val name: String = "",
     val category: String = "",
     val stock: Int = 0,

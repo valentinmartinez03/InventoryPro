@@ -2,7 +2,9 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.InventoryStock" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/primary_green</item>
+        <item name="colorSecondaryContainer">#E0E0E0</item> <!-- Color del "pill" hover -->
+        <item name="colorOnSecondaryContainer">@color/black</item> <!-- Color del icono seleccionado -->
     </style>
 
     <style name="Theme.InventoryStock" parent="Base.Theme.InventoryStock" />

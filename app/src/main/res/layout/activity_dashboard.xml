@@ -54,9 +54,10 @@
                 android:gravity="center"
                 android:orientation="vertical">
                 <TextView
+                    android:id="@+id/tv_stat_total"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="30"
+                    android:text="0"
                     android:textColor="@color/primary_green"
                     android:textSize="22sp"
                     android:textStyle="bold" />
@@ -75,9 +76,10 @@
                 android:gravity="center"
                 android:orientation="vertical">
                 <TextView
+                    android:id="@+id/tv_stat_stock"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="18"
+                    android:text="0"
                     android:textColor="#2980B9"
                     android:textSize="22sp"
                     android:textStyle="bold" />
@@ -96,9 +98,10 @@
                 android:gravity="center"
                 android:orientation="vertical">
                 <TextView
+                    android:id="@+id/tv_stat_critical"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="12"
+                    android:text="0"
                     android:textColor="@color/red_delete"
                     android:textSize="22sp"
                     android:textStyle="bold" />
@@ -205,8 +208,9 @@
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_nav"
         android:layout_width="match_parent"
-        android:layout_height="72dp"
-        android:background="@color/white"
+        android:layout_height="85dp"
+        app:itemIconPadding="8dp"
+        android:paddingBottom="12dp"
         app:elevation="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:menu="@menu/bottom_nav_menu" />

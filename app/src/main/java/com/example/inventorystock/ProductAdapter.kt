@@ -1,5 +1,6 @@
 package com.example.inventorystock
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -47,6 +48,20 @@ class ProductAdapter(
             }
         }
 
+        // Click corto para EDITAR
+        holder.itemView.setOnClickListener {
+            val intent = Intent(it.context, AddProductActivity::class.java).apply {
+                putExtra("PRODUCT_ID", product.id)
+                putExtra("PRODUCT_NAME", product.name)
+                putExtra("PRODUCT_CATEGORY", product.category)
+                putExtra("PRODUCT_STOCK", product.stock)
+                putExtra("PRODUCT_PRICE", product.price)
+                putExtra("PRODUCT_BARCODE", product.barcode)
+            }
+            it.context.startActivity(intent)
+        }
+
+        // Click largo para BORRAR
         holder.itemView.setOnLongClickListener {
             onDeleteClick(product)
             true
