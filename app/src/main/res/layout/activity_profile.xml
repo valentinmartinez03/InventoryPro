@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/profile_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -23,12 +24,13 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
+
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:contentDescription="Profile Picture"
             android:scaleType="centerCrop"
-            android:src="@android:drawable/ic_menu_gallery"
-            android:contentDescription="Profile Picture" />
+            android:src="@android:drawable/ic_menu_gallery" />
     </androidx.cardview.widget.CardView>
 
     <TextView
@@ -54,56 +56,147 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_profile_name" />
 
-    <LinearLayout
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cv_menu_options"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:orientation="vertical"
-        android:paddingHorizontal="24dp"
-        app:layout_constraintTop_toBottomOf="@id/tv_profile_email">
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="20dp"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="0dp"
+        app:layout_constraintTop_toBottomOf="@id/tv_profile_email"
+        app:strokeColor="#E0E0E0"
+        app:strokeWidth="1dp">
 
-        <Button
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Mi Información"
-            android:textAllCaps="false"
-            android:gravity="start|center_vertical"
-            android:drawableStart="@android:drawable/ic_menu_info_details"
-            android:drawablePadding="12dp"
-            style="@style/Widget.Material3.Button.TextButton" />
+            android:orientation="vertical">
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Notificaciones"
-            android:textAllCaps="false"
-            android:gravity="start|center_vertical"
-            android:drawableStart="@android:drawable/ic_popup_reminder"
-            android:drawablePadding="12dp"
-            style="@style/Widget.Material3.Button.TextButton" />
+            <TextView
+                android:id="@+id/btn_info_personal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:drawablePadding="12dp"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="10dp"
+                android:text="Información personal"
+                android:textColor="#1E1E1E"
+                android:textSize="15sp" />
 
-        <Button
-            android:id="@+id/btn_logout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Cerrar Sesión"
-            android:textAllCaps="false"
-            android:textColor="@color/red_delete"
-            android:gravity="start|center_vertical"
-            android:drawableStart="@android:drawable/ic_menu_close_clear_cancel"
-            android:drawableTint="@color/red_delete"
-            android:drawablePadding="12dp"
-            style="@style/Widget.Material3.Button.TextButton" />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E0E0E0" />
 
-    </LinearLayout>
+            <TextView
+                android:id="@+id/btn_notificaciones"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:drawablePadding="12dp"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="10dp"
+                android:text="Notificaciones"
+                android:textColor="#1E1E1E"
+                android:textSize="15sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E0E0E0" />
+
+            <TextView
+                android:id="@+id/btn_seguridad"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:drawablePadding="12dp"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="10dp"
+                android:text="Seguridad"
+                android:textColor="#1E1E1E"
+                android:textSize="15sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E0E0E0" />
+
+            <TextView
+                android:id="@+id/btn_apariencia"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:drawablePadding="12dp"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="10dp"
+                android:text="Apariencia"
+                android:textColor="#1E1E1E"
+                android:textSize="15sp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E0E0E0" />
+
+            <TextView
+                android:id="@+id/btn_configuracion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:drawablePadding="12dp"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="10dp"
+                android:text="Configuración"
+                android:textColor="#1E1E1E"
+                android:textSize="15sp" />
+
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_nav_profile"
         android:layout_width="match_parent"
-        android:layout_height="85dp"
-        app:itemIconPadding="8dp"
-        android:paddingBottom="12dp"
+        android:layout_height="90dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:menu="@menu/bottom_nav_menu" />
+
+    <Button
+        android:id="@+id/btn_logout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginHorizontal="24dp"
+        android:text="Cerrar Sesión"
+        android:textAllCaps="false"
+        android:textColor="@color/red_delete"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:paddingVertical="12dp"
+        app:backgroundTint="@color/background_pink"
+        app:strokeColor="@color/red_delete"
+        app:strokeWidth="2dp"
+        app:cornerRadius="12dp"
+        app:layout_constraintTop_toBottomOf="@id/cv_menu_options"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
