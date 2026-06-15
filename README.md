@@ -9,10 +9,10 @@ Este proyecto es desarrollado para la materia **Desarrollo de Aplicaciones para 
 ## 👥 Integrantes del Equipo y Roles
 
 * **Valentin Martinez** - *Product Owner* (Gestión de requerimientos y backlog)
-* **[Nombre Completo]** - *Tech Lead / Android Developer* (Arquitectura y desarrollo core)
-* **Valentin Martinez** - *UX/UI Designer* (Diseño de interfaz y experiencia de usuario)
-* **[Nombre Completo]** - *Backend Lead* (Desarrollo de API y sincronización nube)
-* **[Nombre Completo]** - *QA / DevOps* (Estrategia de testing y automatización)
+* **Fernando Martín** - *Tech Lead / Android Developer* (Arquitectura y desarrollo core)
+* **Valentin Martinez/Mauro Di Gallo** - *UX/UI Designer* (Diseño de interfaz y experiencia de usuario)
+* **Gian Malaspina** - *Backend Lead* (Desarrollo de API y sincronización nube)
+* **Mauro Di Gallo** - *QA / DevOps* (Estrategia de testing y automatización)
 
 ---
 
