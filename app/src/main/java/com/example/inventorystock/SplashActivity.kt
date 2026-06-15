@@ -13,7 +13,7 @@ class SplashActivity : AppCompatActivity() {
 
         // Simular una carga de 2 segundos antes de ir al Onboarding
         Handler(Looper.getMainLooper()).postDelayed({
-            startActivity(Intent(this, OnboardingActivity::class.java))
+            startActivity(Intent(this, MainActivity::class.java))
             finish()
         }, 2000)
     }
