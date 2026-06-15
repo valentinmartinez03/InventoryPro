@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="@color/white">
+    android:background="@color/background_gray">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/main"
@@ -42,7 +42,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Control de Stock Inteligente"
-            android:textColor="@color/gray_text"
+            android:textColor="@color/bright_green"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -92,7 +92,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:text="¿Olvidaste tu contraseña?"
-            android:textColor="@color/primary_green"
+            android:textColor="@color/accent_blue"
             android:textSize="14sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
@@ -112,7 +112,8 @@
             app:backgroundTint="@null"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_forgot_password" />
+            app:layout_constraintTop_toBottomOf="@id/tv_forgot_password"
+            android:elevation="6dp"/>
 
         <TextView
             android:id="@+id/tv_register"
@@ -121,7 +122,7 @@
             android:layout_marginTop="32dp"
             android:layout_marginBottom="32dp"
             android:text="¿No tienes cuenta? Regístrate aquí"
-            android:textColor="@color/gray_text"
+            android:textColor="@color/accent_blue"
             android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

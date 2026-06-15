@@ -7,4 +7,9 @@
     <color name="gray_text">#7F8C8D</color>
     <color name="background_light">#F9F9F9</color>
     <color name="red_delete">#E74C3C</color>
+    <color name="accent_blue">#3498DB</color>
+    <color name="accent_orange">#F39C12</color>
+    <color name="background_gray">#F4F6F8</color>
+    <color name="dark_green">#1E8449</color>
+    <color name="bright_green">#2ECC71</color>
 </resources>
