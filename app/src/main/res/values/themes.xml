@@ -2,6 +2,8 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.InventoryStock" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
+        <item name="android:statusBarColor">@color/white</item>
+        <item name="android:windowLightStatusBar">true</item>
         <item name="colorPrimary">@color/primary_green</item>
         <item name="colorSecondaryContainer">#E0E0E0</item> <!-- Color del "pill" hover -->
         <item name="colorOnSecondaryContainer">@color/black</item> <!-- Color del icono seleccionado -->
