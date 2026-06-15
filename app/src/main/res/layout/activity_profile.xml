@@ -4,13 +4,13 @@
     android:id="@+id/profile_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_light">
+    android:background="@color/background_gray">
 
     <View
         android:id="@+id/profile_header"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:background="@color/primary_green"
+        android:background="@drawable/header_gradient"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.cardview.widget.CardView

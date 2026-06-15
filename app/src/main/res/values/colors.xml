@@ -12,4 +12,5 @@
     <color name="background_gray">#F4F6F8</color>
     <color name="dark_green">#1E8449</color>
     <color name="bright_green">#2ECC71</color>
+    <color name="stock_blue">#2980B9</color>
 </resources>

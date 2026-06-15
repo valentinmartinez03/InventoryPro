@@ -5,13 +5,13 @@
     android:id="@+id/dashboard_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_light">
+    android:background="@color/background_gray">
 
     <View
         android:id="@+id/header_bg"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:background="@color/primary_green"
+        android:background="@drawable/header_gradient"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -53,6 +53,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:orientation="vertical">
+
                 <TextView
                     android:id="@+id/tv_stat_total"
                     android:layout_width="wrap_content"
@@ -65,7 +66,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Total"
-                    android:textColor="@color/gray_text"
+                    android:textColor="@color/primary_green"
                     android:textSize="12sp" />
             </LinearLayout>
 
@@ -80,14 +81,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="0"
-                    android:textColor="#2980B9"
+                    android:textColor="@color/stock_blue"
                     android:textSize="22sp"
                     android:textStyle="bold" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="En Stock"
-                    android:textColor="@color/gray_text"
+                    android:textColor="@color/stock_blue"
                     android:textSize="12sp" />
             </LinearLayout>
 
@@ -109,7 +110,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Crítico"
-                    android:textColor="@color/gray_text"
+                    android:textColor="@color/red_delete"
                     android:textSize="12sp" />
             </LinearLayout>
         </LinearLayout>
@@ -167,7 +168,8 @@
                     android:layout_marginTop="8dp"
                     android:text="Nuevo Item"
                     android:textStyle="bold"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    android:textColor="@color/stock_blue"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -199,7 +201,8 @@
                     android:layout_marginTop="8dp"
                     android:text="Inventario"
                     android:textStyle="bold"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    android:textColor="@color/stock_blue"/>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
@@ -208,11 +211,8 @@
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_nav"
         android:layout_width="match_parent"
-        android:layout_height="85dp"
-        app:itemIconPadding="8dp"
-        android:paddingBottom="12dp"
-        app:elevation="16dp"
+        android:layout_height="90dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:menu="@menu/bottom_nav_menu" />
+        app:menu="@menu/bottom_nav_menu"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
