@@ -15,8 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -119,6 +118,14 @@ class InventoryActivity : ComponentActivity() {
         onEdit: () -> Unit,
         onDelete: () -> Unit
     ) {
+        // Estado local para evitar parpadeos
+        var localStock by remember(product.id) { mutableIntStateOf(product.stock) }
+        
+        // Sincronizar estado local si el producto real cambia significativamente
+        LaunchedEffect(product.stock) {
+            localStock = product.stock
+        }
+
         Card(
             modifier = Modifier
                 .padding(horizontal = 20.dp, vertical = 10.dp)
@@ -147,15 +154,23 @@ class InventoryActivity : ComponentActivity() {
                     Text(text = product.name, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                     Text(text = product.category, color = Color.Gray, fontSize = 14.sp)
                     Text(text = "$${product.price}", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                    Text(text = "Stock: ${product.stock}", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    Text(text = "Stock: $localStock", fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 }
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        IconButton(onClick = { onUpdateStock(product.stock + 1) }) {
+                        IconButton(onClick = { 
+                            localStock++
+                            onUpdateStock(localStock)
+                        }) {
                             Icon(Icons.Default.Add, contentDescription = "Suma", tint = MaterialTheme.colorScheme.primary)
                         }
-                        IconButton(onClick = { if (product.stock > 0) onUpdateStock(product.stock - 1) }) {
+                        IconButton(onClick = { 
+                            if (localStock > 0) {
+                                localStock--
+                                onUpdateStock(localStock)
+                            }
+                        }) {
                             Icon(painter = painterResource(id = android.R.drawable.ic_input_delete), contentDescription = "Resta", tint = Color.Gray)
                         }
                     }

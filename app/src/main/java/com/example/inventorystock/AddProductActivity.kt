@@ -8,11 +8,13 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.inventorystock.ui.theme.InventoryStockTheme
@@ -118,18 +120,30 @@ class AddProductActivity : ComponentActivity() {
             Row(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
                     value = stock,
-                    onValueChange = { stock = it },
+                    onValueChange = { newValue ->
+                        // Solo permitir números y evitar negativos (aunque KeyboardType.Number ya ayuda)
+                        if (newValue.all { it.isDigit() }) {
+                            stock = newValue
+                        }
+                    },
                     label = { Text("Stock") },
                     modifier = Modifier.weight(1f),
-                    singleLine = true
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 OutlinedTextField(
                     value = price,
-                    onValueChange = { price = it },
+                    onValueChange = { newValue ->
+                        // Permitir números y un solo punto decimal
+                        if (newValue.isEmpty() || newValue.matches(Regex("""^\d*\.?\d*$"""))) {
+                            price = newValue
+                        }
+                    },
                     label = { Text("Precio ($)") },
                     modifier = Modifier.weight(1f),
-                    singleLine = true
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
                 )
             }
 

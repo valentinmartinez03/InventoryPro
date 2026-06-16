@@ -41,15 +41,18 @@ class ProductViewModel(application: Application) : AndroidViewModel(application)
     fun updateStock(product: Product, newStock: Int) {
         val updatedProduct = product.copy(stock = newStock)
         viewModelScope.launch {
-            productDao.insertProduct(updatedProduct) // Local
-            db.collection("products").document(product.id).update("stock", newStock) // Nube
+            // 1. Actualizar localmente de inmediato (Room)
+            productDao.insertProduct(updatedProduct)
             
-            // Registrar movimiento
+            // 2. Registrar movimiento
             val movement = InventoryMovement(
                 type = "update",
                 productName = product.name
             )
             db.collection("movements").add(movement)
+
+            // 3. Actualizar nube (Firestore) sin bloquear la UI
+            db.collection("products").document(product.id).update("stock", newStock)
         }
     }
 
