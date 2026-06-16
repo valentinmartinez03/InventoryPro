@@ -55,6 +55,7 @@ class DashboardActivity : ComponentActivity() {
         var totalCount by remember { mutableStateOf(0) }
         var inStockCount by remember { mutableStateOf(0) }
         var criticalCount by remember { mutableStateOf(0) }
+        var movements by remember { mutableStateOf(emptyList<InventoryMovement>()) }
 
         LaunchedEffect(Unit) {
             db.collection("products").addSnapshotListener { value, error ->
@@ -64,6 +65,18 @@ class DashboardActivity : ComponentActivity() {
                 inStockCount = products.count { it.stock > 0 }
                 criticalCount = products.count { it.stock == 0 }
             }
+
+            db.collection("movements")
+                .orderBy("timestamp", com.google.firebase.firestore.Query.Direction.DESCENDING)
+                .limit(3)
+                .addSnapshotListener { value, error ->
+                    if (error != null || value == null) return@addSnapshotListener
+                    try {
+                        movements = value.toObjects(InventoryMovement::class.java)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
         }
 
         Scaffold(
@@ -149,6 +162,85 @@ class DashboardActivity : ComponentActivity() {
                         onClick = onNavigateToInventory
                     )
                 }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Text(
+                    text = "Actividad Reciente",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(start = 24.dp, bottom = 16.dp)
+                )
+
+                Card(
+                    modifier = Modifier
+                        .padding(horizontal = 24.dp)
+                        .fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(2.dp)
+                ) {
+                    Column(modifier = Modifier.padding(8.dp)) {
+                        if (movements.isEmpty()) {
+                            Text(
+                                "No hay actividad reciente",
+                                modifier = Modifier.padding(16.dp),
+                                color = Color.Gray,
+                                fontSize = 14.sp
+                            )
+                        } else {
+                            movements.forEachIndexed { index, movement ->
+                                MovementItem(movement)
+                                if (index < movements.size - 1) {
+                                    HorizontalDivider(
+                                        modifier = Modifier.padding(horizontal = 12.dp),
+                                        color = Color(0xFFF0F0F0)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+        }
+    }
+
+    @Composable
+    fun MovementItem(movement: InventoryMovement) {
+        val (title, icon, color) = when (movement.type) {
+            "new" -> Triple("Producto nuevo", Icons.Default.Add, Color(0xFF81C784))
+            "update" -> Triple("Actualización", Icons.Default.Edit, Color(0xFF64B5F6))
+            "delete" -> Triple("Eliminación", Icons.Default.Delete, Color(0xFFE57373))
+            else -> Triple("Movimiento", Icons.Default.Info, Color.Gray)
+        }
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(color.copy(alpha = 0.2f), RoundedCornerShape(8.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = color,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column {
+                Text(text = title, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                Text(text = movement.productName, color = Color.Gray, fontSize = 13.sp)
             }
         }
     }

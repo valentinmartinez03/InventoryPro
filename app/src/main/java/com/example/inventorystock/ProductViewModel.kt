@@ -43,6 +43,13 @@ class ProductViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             productDao.insertProduct(updatedProduct) // Local
             db.collection("products").document(product.id).update("stock", newStock) // Nube
+            
+            // Registrar movimiento
+            val movement = InventoryMovement(
+                type = "update",
+                productName = product.name
+            )
+            db.collection("movements").add(movement)
         }
     }
 
@@ -50,6 +57,13 @@ class ProductViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             productDao.deleteProduct(product) // Local
             db.collection("products").document(product.id).delete() // Nube
+
+            // Registrar movimiento
+            val movement = InventoryMovement(
+                type = "delete",
+                productName = product.name
+            )
+            db.collection("movements").add(movement)
         }
     }
 

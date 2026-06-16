@@ -149,9 +149,21 @@ class AddProductActivity : ComponentActivity() {
                         
                         val collection = db.collection("products")
                         val task = if (productId != null) {
-                            collection.document(productId).set(product)
+                            collection.document(productId).set(product).continueWithTask {
+                                val movement = InventoryMovement(
+                                    type = "update",
+                                    productName = name
+                                )
+                                db.collection("movements").add(movement)
+                            }
                         } else {
-                            collection.add(product)
+                            collection.add(product).continueWithTask { productRef ->
+                                val movement = InventoryMovement(
+                                    type = "new",
+                                    productName = name
+                                )
+                                db.collection("movements").add(movement)
+                            }
                         }
 
                         task.addOnSuccessListener { onSaveSuccess() }
