@@ -135,9 +135,11 @@ class AddProductActivity : ComponentActivity() {
                 OutlinedTextField(
                     value = price,
                     onValueChange = { newValue ->
-                        // Permitir números y un solo punto decimal
-                        if (newValue.isEmpty() || newValue.matches(Regex("""^\d*\.?\d*$"""))) {
-                            price = newValue
+                        // Permitir números y un solo punto decimal con máximo 2 dígitos después
+                        // Soporta tanto punto como coma para la entrada, pero lo normaliza a punto
+                        val normalizedValue = newValue.replace(',', '.')
+                        if (normalizedValue.isEmpty() || normalizedValue.matches(Regex("""^\d*\.?\d{0,2}$"""))) {
+                            price = normalizedValue
                         }
                     },
                     label = { Text("Precio ($)") },
