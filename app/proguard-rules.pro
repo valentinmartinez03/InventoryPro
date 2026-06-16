@@ -19,3 +19,12 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Keep data models used for Firestore and Room
+# Obfuscation can break serialization/deserialization if these are renamed.
+-keep class com.example.inventorystock.Product { *; }
+-keep class com.example.inventorystock.InventoryMovement { *; }
+
+# Firebase specific rules
+-keepattributes Signature
+-keepattributes *Annotation*
