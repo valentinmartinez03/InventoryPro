@@ -1,4 +1,4 @@
-package com.example.inventorystock
+package com.example.inventorystock.activities
 
 import android.content.Intent
 import android.os.Bundle
@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.inventorystock.R
 import com.example.inventorystock.ui.theme.InventoryStockTheme
 
 class OnboardingActivity : ComponentActivity() {

@@ -1,4 +1,4 @@
-package com.example.inventorystock
+package com.example.inventorystock.activities
 
 import android.os.Bundle
 import android.widget.Toast
@@ -17,6 +17,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.inventorystock.data.model.InventoryMovement
+import com.example.inventorystock.data.model.Product
 import com.example.inventorystock.ui.theme.InventoryStockTheme
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -138,7 +140,7 @@ class AddProductActivity : ComponentActivity() {
                         // Permitir números y un solo punto decimal con máximo 2 dígitos después
                         // Soporta tanto punto como coma para la entrada, pero lo normaliza a punto
                         val normalizedValue = newValue.replace(',', '.')
-                        if (normalizedValue.isEmpty() || normalizedValue.matches(Regex("""^\d*\.?\d{0,2}$"""))) {
+                        if (normalizedValue.matches(Regex("""^\d*\.?\d{0,2}$""")) || normalizedValue.isEmpty()) {
                             price = normalizedValue
                         }
                     },
@@ -162,7 +164,7 @@ class AddProductActivity : ComponentActivity() {
                             price.toDoubleOrNull() ?: 0.0,
                             initialBarcode
                         )
-                        
+
                         val collection = db.collection("products")
                         val task = if (productId != null) {
                             collection.document(productId).set(product).continueWithTask {

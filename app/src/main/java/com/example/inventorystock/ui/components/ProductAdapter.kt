@@ -1,4 +1,4 @@
-package com.example.inventorystock
+package com.example.inventorystock.ui.components
 
 import android.content.Intent
 import android.view.LayoutInflater
@@ -8,6 +8,9 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.inventorystock.R
+import com.example.inventorystock.activities.AddProductActivity
+import com.example.inventorystock.data.model.Product
 
 class ProductAdapter(
     private val products: List<Product>,

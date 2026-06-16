@@ -1,7 +1,10 @@
-package com.example.inventorystock
+package com.example.inventorystock.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
+import com.example.inventorystock.data.local.AppDatabase
+import com.example.inventorystock.data.model.InventoryMovement
+import com.example.inventorystock.data.model.Product
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
 

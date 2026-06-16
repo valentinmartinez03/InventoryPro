@@ -1,4 +1,4 @@
-package com.example.inventorystock
+package com.example.inventorystock.activities
 
 import android.os.Bundle
 import android.widget.Toast
@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.inventorystock.R
 import com.example.inventorystock.ui.theme.InventoryStockTheme
 import com.google.firebase.auth.FirebaseAuth
 

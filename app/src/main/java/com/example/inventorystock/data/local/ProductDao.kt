@@ -1,6 +1,7 @@
-package com.example.inventorystock
+package com.example.inventorystock.data.local
 
 import androidx.room.*
+import com.example.inventorystock.data.model.Product
 import kotlinx.coroutines.flow.Flow
 
 @Dao

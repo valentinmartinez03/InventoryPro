@@ -1,4 +1,4 @@
-package com.example.inventorystock
+package com.example.inventorystock.activities
 
 import android.os.Bundle
 import android.widget.Toast
@@ -20,6 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.inventorystock.R
 import com.example.inventorystock.ui.theme.InventoryStockTheme
 
 class ProductDetailActivity : ComponentActivity() {
@@ -99,7 +100,7 @@ class ProductDetailActivity : ComponentActivity() {
                     Column(modifier = Modifier.padding(20.dp)) {
                         Text(text = name, fontSize = 22.sp, fontWeight = FontWeight.Bold)
                         Text(text = "Categoría: $category", color = Color.Gray, fontSize = 14.sp)
-                        
+
                         HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), color = Color(0xFFEEEEEE))
 
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {

@@ -1,4 +1,4 @@
-package com.example.inventorystock
+package com.example.inventorystock.activities
 
 import android.content.Intent
 import android.os.Bundle
@@ -23,6 +23,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.inventorystock.data.model.InventoryMovement
+import com.example.inventorystock.data.model.Product
 import com.example.inventorystock.ui.theme.InventoryStockTheme
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -201,7 +203,7 @@ class DashboardActivity : ComponentActivity() {
                         }
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(24.dp))
             }
         }

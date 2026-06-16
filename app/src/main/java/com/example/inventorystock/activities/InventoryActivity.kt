@@ -1,4 +1,4 @@
-package com.example.inventorystock
+package com.example.inventorystock.activities
 
 import android.content.Intent
 import android.os.Bundle
@@ -24,7 +24,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.inventorystock.R
+import com.example.inventorystock.data.model.Product
 import com.example.inventorystock.ui.theme.InventoryStockTheme
+import com.example.inventorystock.viewmodel.ProductViewModel
 
 class InventoryActivity : ComponentActivity() {
 
@@ -120,7 +123,7 @@ class InventoryActivity : ComponentActivity() {
     ) {
         // Estado local para evitar parpadeos
         var localStock by remember(product.id) { mutableIntStateOf(product.stock) }
-        
+
         // Sincronizar estado local si el producto real cambia significativamente
         LaunchedEffect(product.stock) {
             localStock = product.stock
@@ -159,13 +162,13 @@ class InventoryActivity : ComponentActivity() {
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        IconButton(onClick = { 
+                        IconButton(onClick = {
                             localStock++
                             onUpdateStock(localStock)
                         }) {
                             Icon(Icons.Default.Add, contentDescription = "Suma", tint = MaterialTheme.colorScheme.primary)
                         }
-                        IconButton(onClick = { 
+                        IconButton(onClick = {
                             if (localStock > 0) {
                                 localStock--
                                 onUpdateStock(localStock)
@@ -174,7 +177,7 @@ class InventoryActivity : ComponentActivity() {
                             Icon(painter = painterResource(id = android.R.drawable.ic_input_delete), contentDescription = "Resta", tint = Color.Gray)
                         }
                     }
-                    
+
                     IconButton(onClick = onDelete) {
                         Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = Color.Red)
                     }

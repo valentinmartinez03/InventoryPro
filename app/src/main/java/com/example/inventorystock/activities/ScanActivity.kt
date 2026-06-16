@@ -1,4 +1,4 @@
-package com.example.inventorystock
+package com.example.inventorystock.activities
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import com.example.inventorystock.data.model.Product
 import com.example.inventorystock.ui.theme.InventoryStockTheme
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.mlkit.vision.barcode.BarcodeScanning
@@ -263,9 +264,9 @@ class ScanActivity : ComponentActivity() {
             .addOnSuccessListener { documents ->
                 if (!documents.isEmpty) {
                     val product = documents.documents[0].toObject(Product::class.java)
-                    product?.let { 
+                    product?.let {
                         it.id = documents.documents[0].id
-                        onProductFound(it) 
+                        onProductFound(it)
                     }
                 } else {
                     onNewProduct(code)
