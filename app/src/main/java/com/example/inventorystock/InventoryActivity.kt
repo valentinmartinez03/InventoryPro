@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -103,7 +104,8 @@ class InventoryActivity : ComponentActivity() {
                     ProductItem(
                         product = product,
                         onUpdateStock = { viewModel.updateStock(product, it) },
-                        onEdit = { onEditProduct(product) }
+                        onEdit = { onEditProduct(product) },
+                        onDelete = { viewModel.deleteProduct(product) }
                     )
                 }
             }
@@ -114,7 +116,8 @@ class InventoryActivity : ComponentActivity() {
     fun ProductItem(
         product: Product,
         onUpdateStock: (Int) -> Unit,
-        onEdit: () -> Unit
+        onEdit: () -> Unit,
+        onDelete: () -> Unit
     ) {
         Card(
             modifier = Modifier
@@ -147,12 +150,18 @@ class InventoryActivity : ComponentActivity() {
                     Text(text = "Stock: ${product.stock}", fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 }
 
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    IconButton(onClick = { onUpdateStock(product.stock + 1) }) {
-                        Icon(Icons.Default.Add, contentDescription = "Suma", tint = MaterialTheme.colorScheme.primary)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        IconButton(onClick = { onUpdateStock(product.stock + 1) }) {
+                            Icon(Icons.Default.Add, contentDescription = "Suma", tint = MaterialTheme.colorScheme.primary)
+                        }
+                        IconButton(onClick = { if (product.stock > 0) onUpdateStock(product.stock - 1) }) {
+                            Icon(painter = painterResource(id = android.R.drawable.ic_input_delete), contentDescription = "Resta", tint = Color.Gray)
+                        }
                     }
-                    IconButton(onClick = { if (product.stock > 0) onUpdateStock(product.stock - 1) }) {
-                        Icon(painter = painterResource(id = android.R.drawable.ic_input_delete), contentDescription = "Resta", tint = Color.Red)
+                    
+                    IconButton(onClick = onDelete) {
+                        Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = Color.Red)
                     }
                 }
             }
