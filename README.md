@@ -2,7 +2,7 @@
 
 ¡Bienvenido al repositorio oficial de **InventoryPro**! Una aplicación móvil de gestión comercial y productividad diseñada específicamente para pequeños emprendedores que venden sus productos a través de redes sociales y necesitan un control de stock simple, intuitivo pero altamente robusto.
 
-Este proyecto es desarrollado para la materia **Desarrollo de Aplicaciones para Dispositivos Móviles** del segundo año de la **Tecnicatura Superior en Desarrollo de Software** (IFTS N°18, 2026)[cite: 1].
+Este proyecto es desarrollado para la materia **Desarrollo de Aplicaciones para Dispositivos Móviles** del segundo año de la **Tecnicatura Superior en Desarrollo de Software** (IFTS N°18, 2026).
 
 ---
 
@@ -10,9 +10,9 @@ Este proyecto es desarrollado para la materia **Desarrollo de Aplicaciones para 
 
 * **Valentin Martinez** - *Product Owner* (Gestión de requerimientos y backlog)
 * **Fernando Martín** - *Tech Lead / Android Developer* (Arquitectura y desarrollo core)
-* **Valentin Martinez/Mauro Di Gallo** - *UX/UI Designer* (Diseño de interfaz y experiencia de usuario)
-* **Gian Malaspina** - *Backend Lead* (Desarrollo de API y sincronización nube)
-* **Mauro Di Gallo** - *QA / DevOps* (Estrategia de testing y automatización)
+* **Valentin Martinez / Mauro Di Gallo** - *UX/UI Designer* (Diseño de interfaz y experiencia de usuario)
+* **Fernando Martín** - *Backend Lead* (Desarrollo de API y sincronización nube)
+* **Mauro Di Gallo / Gian Malaspina** - *QA / DevOps* (Estrategia de testing y automatización)
 
 ---
 
