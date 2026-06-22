@@ -5,14 +5,17 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.inventorystock.R
@@ -62,28 +65,78 @@ fun ProductItem(
                 Text(text = "Stock: ${product.stock}", fontWeight = FontWeight.Bold, fontSize = 14.sp)
             }
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    IconButton(onClick = onIncreaseStock) {
-                        Icon(
-                            Icons.Default.Add,
-                            contentDescription = "Suma",
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                    IconButton(onClick = onDecreaseStock) {
-                        Icon(
-                            painter = painterResource(id = android.R.drawable.ic_input_delete),
-                            contentDescription = "Resta",
-                            tint = Color.Gray
-                        )
-                    }
-                }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp) // distancia al texto
+            ) { FilledIconButton(
+                onClick = onDelete,
+                modifier = Modifier
+                    .size(48.dp)
+                    .shadow(
+                        elevation = 4.dp,
+                        shape = CircleShape
+                    ),
+                colors = IconButtonDefaults.filledIconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Eliminar",
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(26.dp)
+                )
+            }
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
 
-                IconButton(onClick = onDelete) {
-                    Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = Color.Red)
+                ) {
+
+                    FilledIconButton(
+                        onClick = onIncreaseStock,
+                        modifier = Modifier
+                            .size(48.dp)
+                            .shadow(
+                                elevation = 4.dp,
+                                shape = CircleShape
+                            ),
+                        colors = IconButtonDefaults.filledIconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Sumar",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(30.dp)
+                        )
+                    }
+
+                    FilledIconButton(
+                        onClick = onDecreaseStock,
+                        modifier = Modifier
+                            .size(48.dp)
+                            .shadow(
+                                elevation = 4.dp,
+                                shape = CircleShape
+                            ),
+                        colors = IconButtonDefaults.filledIconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.surface
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Remove,
+                            contentDescription = "Restar",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(30.dp)
+                        )
+                    }
                 }
+            }
+
+
             }
         }
     }
-}
+
