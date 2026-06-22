@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.inventorystock.R
@@ -54,7 +55,13 @@ fun ProductItem(
                     .weight(1f)
                     .padding(horizontal = 20.dp)
             ) {
-                Text(text = product.name, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text(
+                    text = product.name,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
                 Text(text = product.category, color = Color.Gray, fontSize = 14.sp)
                 Text(
                     text = "$${product.price}",
