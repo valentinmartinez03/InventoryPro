@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.example.inventorystock.data.model.Product
+import com.example.inventorystock.ui.components.BottomNavigationBar
 import com.example.inventorystock.ui.theme.InventoryStockTheme
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.mlkit.vision.barcode.BarcodeScanning

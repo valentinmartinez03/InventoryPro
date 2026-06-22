@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -20,36 +21,59 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.lifecycleScope
 import com.example.inventorystock.R
 import com.example.inventorystock.ui.theme.InventoryStockTheme
+import com.example.inventorystock.viewmodel.MainViewModel
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
     private val auth = FirebaseAuth.getInstance()
+    private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        if (auth.currentUser != null) {
-            startActivity(Intent(this, DashboardActivity::class.java))
-            finish()
+        // El ViewModel decide el destino basándose en la lógica de negocio
+        lifecycleScope.launch {
+            viewModel.startDestination.collect { destination ->
+                when (destination) {
+                    is MainViewModel.Destination.Onboarding -> {
+                        startActivity(Intent(this@MainActivity, OnboardingActivity::class.java))
+                        finish()
+                    }
+                    is MainViewModel.Destination.Dashboard -> {
+                        startActivity(Intent(this@MainActivity, DashboardActivity::class.java))
+                        finish()
+                    }
+                    is MainViewModel.Destination.Login -> {
+                        // Destino actual, se queda aquí
+                    }
+                    else -> {}
+                }
+            }
         }
 
         enableEdgeToEdge()
         setContent {
             InventoryStockTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    LoginScreen(
-                        modifier = Modifier.padding(innerPadding),
-                        onLoginSuccess = {
-                            startActivity(Intent(this, DashboardActivity::class.java))
-                            finish()
-                        },
-                        onNavigateToRegister = {
-                            startActivity(Intent(this, RegisterActivity::class.java))
-                        }
-                    )
+                val destination by viewModel.startDestination.collectAsState()
+                
+                if (destination is MainViewModel.Destination.Login) {
+                    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                        LoginScreen(
+                            modifier = Modifier.padding(innerPadding),
+                            onLoginSuccess = {
+                                startActivity(Intent(this, DashboardActivity::class.java))
+                                finish()
+                            },
+                            onNavigateToRegister = {
+                                startActivity(Intent(this, RegisterActivity::class.java))
+                            }
+                        )
+                    }
                 }
             }
         }

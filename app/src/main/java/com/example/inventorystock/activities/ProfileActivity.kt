@@ -27,6 +27,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.inventorystock.ui.components.BottomNavigationBar
 import com.example.inventorystock.ui.theme.InventoryStockTheme
 import com.google.firebase.auth.FirebaseAuth
 

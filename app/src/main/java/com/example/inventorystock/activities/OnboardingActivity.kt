@@ -27,6 +27,10 @@ class OnboardingActivity : ComponentActivity() {
         setContent {
             InventoryStockTheme {
                 OnboardingScreen(onFinish = {
+                    // Guardar en SharedPreferences que ya se completó
+                    val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+                    prefs.edit().putBoolean("onboarding_finished", true).apply()
+
                     startActivity(Intent(this, MainActivity::class.java))
                     finish()
                 })
@@ -53,6 +57,7 @@ class OnboardingActivity : ComponentActivity() {
                 "Tus datos siempre seguros en la nube y disponibles en todos tus dispositivos.",
                 R.drawable.ic_inventory_logo
             )
+
         )
 
         Column(
@@ -102,6 +107,7 @@ class OnboardingActivity : ComponentActivity() {
             ) {
                 Text(if (currentPage < pages.size - 1) "Siguiente" else "Comenzar")
             }
+
         }
     }
 

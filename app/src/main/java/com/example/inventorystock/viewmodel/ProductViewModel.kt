@@ -30,7 +30,6 @@ class ProductViewModel(application: Application) : AndroidViewModel(application)
                         p.id = doc.id
                         p
                     }
-                    // Actualizar base de datos local (Room) con los datos de la nube
                     for (p in firestoreProducts) {
                         productDao.insertProduct(p)
                     }
@@ -41,30 +40,35 @@ class ProductViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    fun updateStock(product: Product, newStock: Int) {
+    fun onIncreaseStock(product: Product) {
+        updateStock(product, product.stock + 1)
+    }
+
+    fun onDecreaseStock(product: Product) {
+        if (product.stock > 0) {
+            updateStock(product, product.stock - 1)
+        }
+    }
+
+    private fun updateStock(product: Product, newStock: Int) {
         val updatedProduct = product.copy(stock = newStock)
         viewModelScope.launch {
-            // 1. Actualizar localmente de inmediato (Room)
             productDao.insertProduct(updatedProduct)
             
-            // 2. Registrar movimiento
             val movement = InventoryMovement(
                 type = "update",
                 productName = product.name
             )
             db.collection("movements").add(movement)
-
-            // 3. Actualizar nube (Firestore) sin bloquear la UI
             db.collection("products").document(product.id).update("stock", newStock)
         }
     }
 
     fun deleteProduct(product: Product) {
         viewModelScope.launch {
-            productDao.deleteProduct(product) // Local
-            db.collection("products").document(product.id).delete() // Nube
+            productDao.deleteProduct(product)
+            db.collection("products").document(product.id).delete()
 
-            // Registrar movimiento
             val movement = InventoryMovement(
                 type = "delete",
                 productName = product.name
