@@ -59,10 +59,8 @@ fun DashboardScreen(
     onNavigateToProfile: () -> Unit,
     onNavigateToAdd: () -> Unit
 ) {
-    val totalCount by viewModel.totalCount.collectAsState()
-    val inStockCount by viewModel.inStockCount.collectAsState()
-    val criticalCount by viewModel.criticalCount.collectAsState()
-    val movements by viewModel.movements.collectAsState()
+    // Observamos el estado único de la UI
+    val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
         bottomBar = {
@@ -106,6 +104,12 @@ fun DashboardScreen(
                 )
             }
 
+            if (uiState.isLoading) {
+                Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            }
+
             Card(
                 modifier = Modifier
                     .padding(horizontal = 24.dp)
@@ -128,15 +132,16 @@ fun DashboardScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceAround
                     ) {
-                        StatItem("Total", totalCount.toString(), MaterialTheme.colorScheme.primary)
-                        StatItem("En Stock", inStockCount.toString(), Color(0xFF2980B9))
-                        StatItem("Sin Stock", criticalCount.toString(), Color(0xFFE74C3C))
+                        StatItem("Total", uiState.totalCount.toString(), MaterialTheme.colorScheme.primary)
+                        StatItem("En Stock", uiState.highStockCount.toString(), Color(0xFF3498DB))
+                        StatItem("Poco Stock", uiState.lowStockCount.toString(), Color(0xFFF39C12))
+                        StatItem("Sin Stock", uiState.outOfStockCount.toString(), Color(0xFFE74C3C))
                     }
                 }
             }
 
             // Agrupamos el contenido inferior y lo subimos con offset para compensar la Card
-            Column(modifier = Modifier.offset(y = (-50).dp)) {
+            Column(modifier = Modifier.offset(y = (-60).dp)) {
                 SectionTitle("Acciones Rápidas")
 
                 Row(modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth()) {
@@ -147,10 +152,10 @@ fun DashboardScreen(
                 Spacer(modifier = Modifier.height(24.dp))
                 SectionTitle("Actividad Reciente")
 
-                RecentActivityCard(movements)
+                RecentActivityCard(uiState.movements)
                 
-                // Spacer extra para compensar el offset y que no se corte el scroll al final
-                Spacer(modifier = Modifier.height(100.dp))
+                // Aumentamos el spacer para asegurar que el último movimiento sea visible
+                Spacer(modifier = Modifier.height(140.dp))
             }
         }
     }

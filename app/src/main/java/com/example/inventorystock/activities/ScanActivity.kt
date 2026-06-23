@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -31,14 +30,19 @@ import androidx.core.content.ContextCompat
 import com.example.inventorystock.data.model.Product
 import com.example.inventorystock.ui.components.BottomNavigationBar
 import com.example.inventorystock.ui.theme.InventoryStockTheme
-import com.google.firebase.firestore.FirebaseFirestore
+import androidx.activity.viewModels
+import com.example.inventorystock.viewmodel.ProductViewModel
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import java.util.concurrent.Executors
 
+/**
+ * Actividad de Escaneo refactorizada.
+ * Maneja la cámara para detección de códigos y delega la búsqueda al ViewModel.
+ */
 class ScanActivity : ComponentActivity() {
 
-    private val db = FirebaseFirestore.getInstance()
+    private val viewModel: ProductViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +50,15 @@ class ScanActivity : ComponentActivity() {
         setContent {
             InventoryStockTheme {
                 ScanScreen(
+                    onBarcodeDetected = { code ->
+                        viewModel.findProductByBarcode(code) { product ->
+                            if (product != null) {
+                                navigateToDetail(product)
+                            } else {
+                                navigateToAddProduct(code)
+                            }
+                        }
+                    },
                     onNavigateToHome = {
                         startActivity(Intent(this, DashboardActivity::class.java))
                         finish()
@@ -54,22 +67,8 @@ class ScanActivity : ComponentActivity() {
                         startActivity(Intent(this, InventoryActivity::class.java))
                         finish()
                     },
-                    onProductFound = { product ->
-                        val intent = Intent(this, ProductDetailActivity::class.java).apply {
-                            putExtra("PRODUCT_NAME", product.name)
-                            putExtra("PRODUCT_CATEGORY", product.category)
-                            putExtra("PRODUCT_STOCK", product.stock)
-                            putExtra("PRODUCT_PRICE", product.price)
-                            putExtra("PRODUCT_BARCODE", product.barcode)
-                        }
-                        startActivity(intent)
-                        finish()
-                    },
-                    onNewProduct = { code ->
-                        val intent = Intent(this, AddProductActivity::class.java).apply {
-                            putExtra("SCAN_RESULT", code)
-                        }
-                        startActivity(intent)
+                    onNavigateToProfile = {
+                        startActivity(Intent(this, ProfileActivity::class.java))
                         finish()
                     }
                 )
@@ -77,201 +76,202 @@ class ScanActivity : ComponentActivity() {
         }
     }
 
-    @Composable
-    fun ScanScreen(
-        onNavigateToHome: () -> Unit,
-        onNavigateToInventory: () -> Unit,
-        onProductFound: (Product) -> Unit,
-        onNewProduct: (String) -> Unit
-    ) {
-        val context = LocalContext.current
-        val lifecycleOwner = LocalLifecycleOwner.current
-        var hasCameraPermission by remember {
-            mutableStateOf(
-                ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+    private fun navigateToDetail(product: Product) {
+        val intent = Intent(this, ProductDetailActivity::class.java).apply {
+            putExtra("PRODUCT_NAME", product.name)
+            putExtra("PRODUCT_CATEGORY", product.category)
+            putExtra("PRODUCT_STOCK", product.stock)
+            putExtra("PRODUCT_PRICE", product.price)
+            putExtra("PRODUCT_BARCODE", product.barcode)
+        }
+        startActivity(intent)
+        finish()
+    }
+
+    private fun navigateToAddProduct(code: String) {
+        val intent = Intent(this, AddProductActivity::class.java).apply {
+            putExtra("SCAN_RESULT", code)
+        }
+        startActivity(intent)
+        finish()
+    }
+}
+
+@Composable
+fun ScanScreen(
+    onBarcodeDetected: (String) -> Unit,
+    onNavigateToHome: () -> Unit,
+    onNavigateToInventory: () -> Unit,
+    onNavigateToProfile: () -> Unit
+) {
+    val context = LocalContext.current
+    var hasCameraPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        hasCameraPermission = isGranted
+    }
+
+    LaunchedEffect(Unit) {
+        if (!hasCameraPermission) {
+            launcher.launch(Manifest.permission.CAMERA)
+        }
+    }
+
+    Scaffold(
+        bottomBar = {
+            BottomNavigationBar(
+                selectedItem = 2,
+                onNavigateToHome = onNavigateToHome,
+                onNavigateToInventory = onNavigateToInventory,
+                onNavigateToScan = { },
+                onNavigateToProfile = onNavigateToProfile
             )
         }
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+                .background(Color.Black)
+        ) {
+            if (hasCameraPermission) {
+                CameraPreview(onBarcodeDetected = onBarcodeDetected)
 
-        val launcher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.RequestPermission()
-        ) { isGranted ->
-            hasCameraPermission = isGranted
-        }
+                // Overlay de escaneo
+                ScanOverlay(modifier = Modifier.align(Alignment.Center))
 
-        LaunchedEffect(Unit) {
-            if (!hasCameraPermission) {
-                launcher.launch(Manifest.permission.CAMERA)
-            }
-        }
-
-        Scaffold(
-            bottomBar = {
-                BottomNavigationBar(
-                    selectedItem = 2,
-                    onNavigateToHome = onNavigateToHome,
-                    onNavigateToInventory = onNavigateToInventory,
-                    onNavigateToScan = { },
-                    onNavigateToProfile = {
-                        startActivity(Intent(context, ProfileActivity::class.java))
-                        finish()
-                    }
+                // Textos informativos
+                ScanInfoTexts()
+            } else {
+                Text(
+                    text = "Se requiere permiso de cámara para escanear",
+                    color = Color.White,
+                    modifier = Modifier.align(Alignment.Center)
                 )
             }
-        ) { innerPadding ->
-            Box(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize()
-                    .background(Color.Black)
-            ) {
-                if (hasCameraPermission) {
-                    CameraPreview(
-                        onBarcodeDetected = { code ->
-                            searchBarcode(code, onProductFound, onNewProduct)
-                        }
-                    )
-
-                    // Overlay
-                    Box(
-                        modifier = Modifier
-                            .size(280.dp)
-                            .align(Alignment.Center)
-                            .background(Color.White.copy(alpha = 0.1f))
-                            .padding(2.dp)
-                    ) {
-                        // Scan line
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(2.dp)
-                                .background(Color.Red)
-                                .align(Alignment.Center)
-                        )
-                    }
-
-                    Column(
-                        modifier = Modifier
-                            .align(Alignment.TopCenter)
-                            .padding(top = 60.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "Escanear Código",
-                            color = Color.White,
-                            fontSize = 22.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(300.dp))
-                        Text(
-                            text = "Alinea el código dentro del recuadro",
-                            color = Color.White,
-                            fontSize = 14.sp
-                        )
-                    }
-                } else {
-                    Text(
-                        text = "Se requiere permiso de cámara",
-                        color = Color.White,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-            }
         }
     }
+}
 
-    @Composable
-    fun CameraPreview(onBarcodeDetected: (String) -> Unit) {
-        val context = LocalContext.current
-        val lifecycleOwner = LocalLifecycleOwner.current
-        val cameraExecutor = remember { Executors.newSingleThreadExecutor() }
-        var isScanning by remember { mutableStateOf(true) }
+@Composable
+fun ScanOverlay(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .size(280.dp)
+            .background(Color.White.copy(alpha = 0.1f))
+            .padding(2.dp)
+    ) {
+        // Línea de escaneo animada (estática por ahora)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(2.dp)
+                .background(Color.Red)
+                .align(Alignment.Center)
+        )
+    }
+}
 
-        AndroidView(
-            factory = { ctx ->
-                val previewView = PreviewView(ctx)
-                val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
+@Composable
+fun ScanInfoTexts() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 60.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Escanear Código",
+            color = Color.White,
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(320.dp))
+        Text(
+            text = "Alinea el código dentro del recuadro",
+            color = Color.White,
+            fontSize = 14.sp
+        )
+    }
+}
 
-                cameraProviderFuture.addListener({
-                    val cameraProvider = cameraProviderFuture.get()
-                    val preview = Preview.Builder().build().also {
-                        it.setSurfaceProvider(previewView.surfaceProvider)
-                    }
+@Composable
+fun CameraPreview(onBarcodeDetected: (String) -> Unit) {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val cameraExecutor = remember { Executors.newSingleThreadExecutor() }
+    var isScanning by remember { mutableStateOf(true) }
 
-                    val imageAnalyzer = ImageAnalysis.Builder()
-                        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                        .build()
-                        .also {
-                            it.setAnalyzer(cameraExecutor) { imageProxy ->
-                                if (isScanning) {
-                                    processImageProxy(imageProxy) { code ->
-                                        if (isScanning) {
-                                            isScanning = false
-                                            onBarcodeDetected(code)
-                                        }
+    AndroidView(
+        factory = { ctx ->
+            val previewView = PreviewView(ctx)
+            val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
+
+            cameraProviderFuture.addListener({
+                val cameraProvider = cameraProviderFuture.get()
+                val preview = Preview.Builder().build().also {
+                    it.setSurfaceProvider(previewView.surfaceProvider)
+                }
+
+                val imageAnalyzer = ImageAnalysis.Builder()
+                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                    .build()
+                    .also {
+                        it.setAnalyzer(cameraExecutor) { imageProxy ->
+                            if (isScanning) {
+                                processImageProxy(imageProxy) { code ->
+                                    if (isScanning) {
+                                        isScanning = false
+                                        onBarcodeDetected(code)
                                     }
-                                } else {
-                                    imageProxy.close()
                                 }
+                            } else {
+                                imageProxy.close()
                             }
                         }
-
-                    try {
-                        cameraProvider.unbindAll()
-                        cameraProvider.bindToLifecycle(
-                            lifecycleOwner,
-                            CameraSelector.DEFAULT_BACK_CAMERA,
-                            preview,
-                            imageAnalyzer
-                        )
-                    } catch (exc: Exception) {
-                        // Log error
                     }
-                }, ContextCompat.getMainExecutor(ctx))
-                previewView
-            },
-            modifier = Modifier.fillMaxSize()
-        )
 
-        DisposableEffect(Unit) {
-            onDispose { cameraExecutor.shutdown() }
-        }
-    }
-
-    @SuppressLint("UnsafeOptInUsageError")
-    private fun processImageProxy(imageProxy: ImageProxy, onCodeFound: (String) -> Unit) {
-        val mediaImage = imageProxy.image
-        if (mediaImage != null) {
-            val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
-            val scanner = BarcodeScanning.getClient()
-
-            scanner.process(image)
-                .addOnSuccessListener { barcodes ->
-                    for (barcode in barcodes) {
-                        barcode.rawValue?.let { onCodeFound(it) }
-                    }
+                try {
+                    cameraProvider.unbindAll()
+                    cameraProvider.bindToLifecycle(
+                        lifecycleOwner,
+                        CameraSelector.DEFAULT_BACK_CAMERA,
+                        preview,
+                        imageAnalyzer
+                    )
+                } catch (exc: Exception) {
+                    // Manejar error de cámara
                 }
-                .addOnCompleteListener { imageProxy.close() }
-        }
-    }
+            }, ContextCompat.getMainExecutor(ctx))
+            previewView
+        },
+        modifier = Modifier.fillMaxSize()
+    )
 
-    private fun searchBarcode(
-        code: String,
-        onProductFound: (Product) -> Unit,
-        onNewProduct: (String) -> Unit
-    ) {
-        db.collection("products")
-            .whereEqualTo("barcode", code)
-            .get()
-            .addOnSuccessListener { documents ->
-                if (!documents.isEmpty) {
-                    val product = documents.documents[0].toObject(Product::class.java)
-                    product?.let {
-                        it.id = documents.documents[0].id
-                        onProductFound(it)
-                    }
-                } else {
-                    onNewProduct(code)
+    DisposableEffect(Unit) {
+        onDispose { cameraExecutor.shutdown() }
+    }
+}
+
+@SuppressLint("UnsafeOptInUsageError")
+private fun processImageProxy(imageProxy: ImageProxy, onCodeFound: (String) -> Unit) {
+    val mediaImage = imageProxy.image
+    if (mediaImage != null) {
+        val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
+        val scanner = BarcodeScanning.getClient()
+
+        scanner.process(image)
+            .addOnSuccessListener { barcodes ->
+                for (barcode in barcodes) {
+                    barcode.rawValue?.let { onCodeFound(it) }
                 }
             }
+            .addOnCompleteListener { imageProxy.close() }
     }
 }

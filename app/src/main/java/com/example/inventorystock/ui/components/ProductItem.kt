@@ -30,6 +30,12 @@ fun ProductItem(
     onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
+    val borderColor = when {
+        product.stock == 0 -> Color(0xFFE74C3C) // Rojo
+        product.stock <= 10 -> Color(0xFFF39C12) // Naranja
+        else -> Color(0xFF3498DB) // Azul
+    }
+
     Card(
         modifier = Modifier
             .padding(horizontal = 20.dp, vertical = 10.dp)
@@ -37,7 +43,8 @@ fun ProductItem(
             .clickable { onEdit() },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(6.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = androidx.compose.foundation.BorderStroke(2.dp, borderColor)
     ) {
         Row(
             modifier = Modifier.padding(20.dp),

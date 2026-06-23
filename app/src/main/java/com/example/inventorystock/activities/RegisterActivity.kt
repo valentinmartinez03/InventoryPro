@@ -5,6 +5,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -14,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -21,23 +23,41 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.inventorystock.R
 import com.example.inventorystock.ui.theme.InventoryStockTheme
-import com.google.firebase.auth.FirebaseAuth
+import com.example.inventorystock.viewmodel.RegisterUiState
+import com.example.inventorystock.viewmodel.RegisterViewModel
 
 class RegisterActivity : ComponentActivity() {
 
-    private val auth = FirebaseAuth.getInstance()
+    private val viewModel: RegisterViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val uiState by viewModel.uiState.collectAsState()
+            val context = LocalContext.current
+
+            LaunchedEffect(uiState.isSuccess) {
+                if (uiState.isSuccess) {
+                    Toast.makeText(context, "¡Usuario creado exitosamente!", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+            }
+
+            LaunchedEffect(uiState.errorMessage) {
+                uiState.errorMessage?.let {
+                    Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+                    viewModel.clearError()
+                }
+            }
+
             InventoryStockTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     RegisterScreen(
                         modifier = Modifier.padding(innerPadding),
-                        onRegisterSuccess = {
-                            Toast.makeText(this, "¡Usuario creado exitosamente!", Toast.LENGTH_SHORT).show()
-                            finish()
+                        uiState = uiState,
+                        onRegister = { name, email, pass ->
+                            viewModel.register(name, email, pass)
                         },
                         onNavigateBack = { finish() }
                     )
@@ -49,7 +69,8 @@ class RegisterActivity : ComponentActivity() {
     @Composable
     fun RegisterScreen(
         modifier: Modifier = Modifier,
-        onRegisterSuccess: () -> Unit,
+        uiState: RegisterUiState,
+        onRegister: (String, String, String) -> Unit,
         onNavigateBack: () -> Unit
     ) {
         var email by remember { mutableStateOf("") }
@@ -88,7 +109,8 @@ class RegisterActivity : ComponentActivity() {
                 onValueChange = { name = it },
                 label = { Text("Nombre completo") },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                enabled = !uiState.isLoading
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -98,7 +120,8 @@ class RegisterActivity : ComponentActivity() {
                 onValueChange = { email = it },
                 label = { Text("Correo electrónico") },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                enabled = !uiState.isLoading
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -109,37 +132,29 @@ class RegisterActivity : ComponentActivity() {
                 label = { Text("Contraseña segura") },
                 modifier = Modifier.fillMaxWidth(),
                 visualTransformation = PasswordVisualTransformation(),
-                singleLine = true
+                singleLine = true,
+                enabled = !uiState.isLoading
             )
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            Button(
-                onClick = {
-                    if (email.isNotEmpty() && password.isNotEmpty()) {
-                        auth.createUserWithEmailAndPassword(email, password)
-                            .addOnCompleteListener { task ->
-                                if (task.isSuccessful) {
-                                    onRegisterSuccess()
-                                } else {
-                                    Toast.makeText(this@RegisterActivity, "Error: ${task.exception?.message}", Toast.LENGTH_LONG).show()
-                                }
-                            }
-                    } else {
-                        Toast.makeText(this@RegisterActivity, "Completa todos los campos", Toast.LENGTH_SHORT).show()
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(60.dp),
-                shape = MaterialTheme.shapes.medium
-            ) {
-                Text("Registrarse", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            if (uiState.isLoading) {
+                CircularProgressIndicator()
+            } else {
+                Button(
+                    onClick = { onRegister(name, email, password) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp),
+                    shape = MaterialTheme.shapes.medium
+                ) {
+                    Text("Registrarse", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                }
             }
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            TextButton(onClick = onNavigateBack) {
+            TextButton(onClick = onNavigateBack, enabled = !uiState.isLoading) {
                 Text("¿Ya tienes cuenta? Inicia sesión aquí", color = Color.Gray)
             }
         }

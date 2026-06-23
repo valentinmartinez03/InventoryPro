@@ -1,48 +1,57 @@
 package com.example.inventorystock.viewmodel
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.inventorystock.data.InventoryRepository
+import com.example.inventorystock.data.local.AppDatabase
 import com.example.inventorystock.data.model.InventoryMovement
-import com.example.inventorystock.data.model.Product
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class DashboardViewModel : ViewModel() {
-    private val db = FirebaseFirestore.getInstance()
+data class DashboardUiState(
+    val totalCount: Int = 0,
+    val highStockCount: Int = 0,
+    val lowStockCount: Int = 0,
+    val outOfStockCount: Int = 0,
+    val movements: List<InventoryMovement> = emptyList(),
+    val isLoading: Boolean = true
+)
 
-    private val _totalCount = MutableStateFlow(0)
-    val totalCount: StateFlow<Int> = _totalCount
+class DashboardViewModel(application: Application) : AndroidViewModel(application) {
+    
+    private val productDao = AppDatabase.getDatabase(application).productDao()
+    private val repository = InventoryRepository(productDao)
 
-    private val _inStockCount = MutableStateFlow(0)
-    val inStockCount: StateFlow<Int> = _inStockCount
-
-    private val _criticalCount = MutableStateFlow(0)
-    val criticalCount: StateFlow<Int> = _criticalCount
-
-    private val _movements = MutableStateFlow<List<InventoryMovement>>(emptyList())
-    val movements: StateFlow<List<InventoryMovement>> = _movements
+    private val _uiState = MutableStateFlow(DashboardUiState())
+    val uiState: StateFlow<DashboardUiState> = _uiState.asStateFlow()
 
     init {
-        fetchData()
+        observeDashboardData()
     }
 
-    private fun fetchData() {
-        db.collection("products").addSnapshotListener { value, _ ->
-            value?.toObjects(Product::class.java)?.let { products ->
-                _totalCount.value = products.size
-                _inStockCount.value = products.count { it.stock > 0 }
-                _criticalCount.value = products.count { it.stock == 0 }
+    private fun observeDashboardData() {
+        viewModelScope.launch {
+            repository.getProducts().collect { products ->
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        totalCount = products.size,
+                        highStockCount = products.count { it.stock > 10 },
+                        lowStockCount = products.count { it.stock in 1..10 },
+                        outOfStockCount = products.count { it.stock == 0 },
+                        isLoading = false
+                    )
+                }
             }
         }
 
-        db.collection("movements")
-            .orderBy("timestamp", Query.Direction.DESCENDING)
-            .limit(3)
-            .addSnapshotListener { value, _ ->
-                value?.toObjects(InventoryMovement::class.java)?.let {
-                    _movements.value = it
-                }
+        viewModelScope.launch {
+            repository.getRecentMovements().collect { movementsList ->
+                _uiState.update { it.copy(movements = movementsList) }
             }
+        }
     }
 }

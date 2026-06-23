@@ -16,81 +16,102 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.lifecycleScope
 import com.example.inventorystock.R
 import com.example.inventorystock.ui.theme.InventoryStockTheme
 import com.example.inventorystock.viewmodel.MainViewModel
-import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.launch
+import com.example.inventorystock.viewmodel.LoginUiState
+
 
 class MainActivity : ComponentActivity() {
 
-    private val auth = FirebaseAuth.getInstance()
     private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
-        // El ViewModel decide el destino basándose en la lógica de negocio
-        lifecycleScope.launch {
-            viewModel.startDestination.collect { destination ->
-                when (destination) {
+        enableEdgeToEdge()
+
+        setContent {
+            val startDestination by viewModel.startDestination.collectAsState()
+            val uiState by viewModel.uiState.collectAsState()
+            val context = LocalContext.current
+
+
+            LaunchedEffect(startDestination) {
+                when (startDestination) {
                     is MainViewModel.Destination.Onboarding -> {
-                        startActivity(Intent(this@MainActivity, OnboardingActivity::class.java))
+                        startActivity(Intent(context, OnboardingActivity::class.java))
                         finish()
                     }
                     is MainViewModel.Destination.Dashboard -> {
-                        startActivity(Intent(this@MainActivity, DashboardActivity::class.java))
+                        startActivity(Intent(context, DashboardActivity::class.java))
                         finish()
                     }
-                    is MainViewModel.Destination.Login -> {
-                        // Destino actual, se queda aquí
-                    }
-                    else -> {}
+                    else -> { /* Permanecer en Login */ }
                 }
             }
-        }
 
-        enableEdgeToEdge()
-        setContent {
+
+            LaunchedEffect(uiState.errorMessage) {
+                uiState.errorMessage?.let {
+                    Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+                    viewModel.clearError()
+                }
+            }
+
+            LaunchedEffect(uiState.isSuccess) {
+                if (uiState.isSuccess) {
+                    startActivity(Intent(context, DashboardActivity::class.java))
+                    finish()
+                }
+            }
+
             InventoryStockTheme {
-                val destination by viewModel.startDestination.collectAsState()
-                
-                if (destination is MainViewModel.Destination.Login) {
-                    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                        LoginScreen(
-                            modifier = Modifier.padding(innerPadding),
-                            onLoginSuccess = {
-                                startActivity(Intent(this, DashboardActivity::class.java))
-                                finish()
-                            },
-                            onNavigateToRegister = {
-                                startActivity(Intent(this, RegisterActivity::class.java))
+                if (startDestination is MainViewModel.Destination.Login) {
+                    LoginScreen(
+                        uiState = uiState,
+                        onLogin = { email, pass -> viewModel.login(email, pass) },
+                        onForgotPassword = { email ->
+                            viewModel.resetPassword(email) {
+                                Toast.makeText(context, "Correo de recuperación enviado", Toast.LENGTH_SHORT).show()
                             }
-                        )
+                        },
+                        onNavigateToRegister = {
+                            startActivity(Intent(context, RegisterActivity::class.java))
+                        }
+                    )
+                } else {
+                    // Pantalla de carga mientras se decide el destino
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
                     }
                 }
             }
         }
     }
+}
 
-    @Composable
-    fun LoginScreen(
-        modifier: Modifier = Modifier,
-        onLoginSuccess: () -> Unit,
-        onNavigateToRegister: () -> Unit
-    ) {
-        var email by remember { mutableStateOf("") }
-        var password by remember { mutableStateOf("") }
-        val scrollState = rememberScrollState()
 
+@Composable
+fun LoginScreen(
+    uiState: LoginUiState,
+    onLogin: (String, String) -> Unit,
+    onForgotPassword: (String) -> Unit,
+    onNavigateToRegister: () -> Unit
+) {
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    val scrollState = rememberScrollState()
+
+    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
         Column(
-            modifier = modifier
+            modifier = Modifier
+                .padding(innerPadding)
                 .fillMaxSize()
                 .verticalScroll(scrollState)
                 .padding(32.dp),
@@ -135,7 +156,8 @@ class MainActivity : ComponentActivity() {
                 onValueChange = { email = it },
                 label = { Text("Correo electrónico") },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                enabled = !uiState.isLoading
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -143,55 +165,43 @@ class MainActivity : ComponentActivity() {
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Contraseña segura") },
+                label = { Text("Contraseña") },
                 modifier = Modifier.fillMaxWidth(),
                 visualTransformation = PasswordVisualTransformation(),
-                singleLine = true
+                singleLine = true,
+                enabled = !uiState.isLoading
             )
 
             TextButton(
-                onClick = {
-                    if (email.isNotEmpty()) {
-                        auth.sendPasswordResetEmail(email).addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                Toast.makeText(this@MainActivity, "Correo enviado", Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    } else {
-                        Toast.makeText(this@MainActivity, "Ingresa tu email", Toast.LENGTH_SHORT).show()
-                    }
-                },
-                modifier = Modifier.align(Alignment.End)
+                onClick = { onForgotPassword(email) },
+                modifier = Modifier.align(Alignment.End),
+                enabled = !uiState.isLoading
             ) {
                 Text("¿Olvidaste tu contraseña?", fontWeight = FontWeight.Bold)
             }
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            Button(
-                onClick = {
-                    if (email.isNotEmpty() && password.isNotEmpty()) {
-                        auth.signInWithEmailAndPassword(email, password)
-                            .addOnCompleteListener { task ->
-                                if (task.isSuccessful) {
-                                    onLoginSuccess()
-                                } else {
-                                    Toast.makeText(this@MainActivity, "Error: ${task.exception?.message}", Toast.LENGTH_LONG).show()
-                                }
-                            }
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(60.dp),
-                shape = MaterialTheme.shapes.medium
-            ) {
-                Text("Acceder", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+            if (uiState.isLoading) {
+                CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+            } else {
+                Button(
+                    onClick = { onLogin(email, password) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(60.dp),
+                    shape = MaterialTheme.shapes.medium
+                ) {
+                    Text("Acceder", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                }
             }
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            TextButton(onClick = onNavigateToRegister) {
+            TextButton(
+                onClick = onNavigateToRegister,
+                enabled = !uiState.isLoading
+            ) {
                 Text("¿No tienes cuenta? Regístrate aquí", color = Color.Gray)
             }
         }

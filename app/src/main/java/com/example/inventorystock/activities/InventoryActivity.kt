@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -20,8 +19,8 @@ import com.example.inventorystock.data.model.Product
 import com.example.inventorystock.ui.components.BottomNavigationBar
 import com.example.inventorystock.ui.components.ProductItem
 import com.example.inventorystock.viewmodel.ProductViewModel
+import com.example.inventorystock.viewmodel.ProductUiState
 import com.example.inventorystock.ui.theme.InventoryStockTheme
-
 
 class InventoryActivity : ComponentActivity() {
 
@@ -31,9 +30,14 @@ class InventoryActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val uiState by viewModel.uiState.collectAsState()
+
             InventoryStockTheme {
                 InventoryScreen(
-                    viewModel = viewModel,
+                    uiState = uiState,
+                    onIncreaseStock = { viewModel.onIncreaseStock(it) },
+                    onDecreaseStock = { viewModel.onDecreaseStock(it) },
+                    onDeleteProduct = { viewModel.deleteProduct(it) },
                     onNavigateToHome = {
                         startActivity(Intent(this, DashboardActivity::class.java))
                         finish()
@@ -66,13 +70,40 @@ class InventoryActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InventoryScreen(
-    viewModel: ProductViewModel,
+    uiState: ProductUiState,
+    onIncreaseStock: (Product) -> Unit,
+    onDecreaseStock: (Product) -> Unit,
+    onDeleteProduct: (Product) -> Unit,
     onNavigateToHome: () -> Unit,
     onNavigateToScan: () -> Unit,
     onNavigateToProfile: () -> Unit,
     onEditProduct: (Product) -> Unit
 ) {
-    val products: List<Product> by viewModel.products.observeAsState(initial = emptyList())
+    var productToDelete by remember { mutableStateOf<Product?>(null) }
+
+    // Diálogo de confirmación para eliminar producto
+    productToDelete?.let { product ->
+        AlertDialog(
+            onDismissRequest = { productToDelete = null },
+            title = { Text("Eliminar Producto") },
+            text = { Text("¿Estás seguro de que quieres eliminar \"${product.name}\"? Esta acción no se puede deshacer.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onDeleteProduct(product)
+                        productToDelete = null
+                    }
+                ) {
+                    Text("Eliminar", color = Color.Red, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { productToDelete = null }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -91,20 +122,29 @@ fun InventoryScreen(
             )
         }
     ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 16.dp)
-        ) {
-            items(products) { product ->
-                ProductItem(
-                    product = product,
-                    onIncreaseStock = { viewModel.onIncreaseStock(product) },
-                    onDecreaseStock = { viewModel.onDecreaseStock(product) },
-                    onEdit = { onEditProduct(product) },
-                    onDelete = { viewModel.deleteProduct(product) }
-                )
+        if (uiState.isLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = androidx.compose.ui.Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .fillMaxSize(),
+                contentPadding = PaddingValues(bottom = 16.dp)
+            ) {
+                items(uiState.products) { product ->
+                    ProductItem(
+                        product = product,
+                        onIncreaseStock = { onIncreaseStock(product) },
+                        onDecreaseStock = { onDecreaseStock(product) },
+                        onEdit = { onEditProduct(product) },
+                        onDelete = { productToDelete = product }
+                    )
+                }
             }
         }
     }
